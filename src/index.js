@@ -1,12 +1,90 @@
+let comments = []
+
+const imageId = 2249 //Enter the id from the fetched image here
+
+const imageURL = `https://randopic.herokuapp.com/images/${imageId}`
+
+const likeURL = `https://randopic.herokuapp.com/likes`
+
+const commentsURL = `https://randopic.herokuapp.com/comments/`
 document.addEventListener('DOMContentLoaded', () => {
   console.log('%c DOM Content Loaded and Parsed!', 'color: magenta')
 
-  let imageId = 1 //Enter the id from the fetched image here
-
-  const imageURL = `https://randopic.herokuapp.com/images/${imageId}`
-
-  const likeURL = `https://randopic.herokuapp.com/likes/`
-
-  const commentsURL = `https://randopic.herokuapp.com/comments/`
-
+  getImage(imageURL,renderImage)
+  card = queryCard()
+  card.button.addEventListener("click", handleLike)
+  card.form.addEventListener("submit", handleComment)
 })
+
+
+function getImage(url,callback) {
+  fetch(url)
+  .then((resp)=>{
+    if(resp.ok){
+      return resp.json()
+    }
+  })
+  .then(data => callback(data))
+}
+
+function postImage(url,body,callback) {
+  fetch(url,{
+    method: "POST",
+    headers: {"Content-Type": "application/json",
+              "Accept": "application/json"},
+    body: JSON.stringify(body)
+  }).then((resp)=>callback(resp))
+}
+
+function renderImage(imageData) {
+  card = queryCard()
+  card.image.src = imageData.url
+  card.h4.innerHTML = imageData.name
+  card.likes.innerHTML = imageData.like_count
+  imageData.comments.forEach(comment=>{
+    li = newComment(comment.content)
+    card.ul.appendChild(li)
+  })
+}
+function handleComment(event) {
+  event.preventDefault()
+  
+  const commentString = event.target.comment.value
+  const li = newComment(commentString)
+  const {ul} = queryCard()
+
+  const requestBody = {"image_id": imageId,
+                        "content": commentString }
+  postImage(commentsURL,requestBody,(resp)=>console.log(resp))
+
+  ul.appendChild(li)
+  event.target.reset()
+}
+function newComment(commentString){
+  const li = document.createElement("li")
+  li.innerHTML = commentString
+  li.dataset.index = comments.length
+  comments.push(commentString)
+  return li
+}
+
+function handleLike(event) {
+  console.log("You really like me")
+
+  let {likes} = queryCard()
+  likes.innerHTML++
+
+  requestBody = {"image_id": imageId}
+  postImage(likeURL,requestBody,(resp)=>console.log("success"))
+}
+function queryCard() {
+  return {
+    card : document.getElementById("image_card"),
+    image: document.getElementById("image"),
+    h4: document.getElementById("name"),
+    likes: document.getElementById("likes"),
+    button: document.getElementById("like_button"),
+    form: document.getElementById("comment_form"),
+    ul: document.getElementById("comments")
+  }
+}
