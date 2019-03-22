@@ -56,7 +56,7 @@ function renderImage(imageData) {
   imageData.comments.forEach(comment=>{
     li = newComment(comment.content)
     li.dataset.id = comment.id
-    card.ul.appendChild(li)
+    //card.ul.appendChild(li)
   })
 }
 
@@ -70,6 +70,9 @@ function newComment(commentString){
   li.innerHTML = commentString
   li.appendChild(deleteBtn)
 
+  const {ul} = queryCard()
+  ul.appendChild(li)
+
   return li
 }
 
@@ -78,14 +81,13 @@ function handleComment(event) {
   event.preventDefault()
   
   const commentString = event.target.comment.value
-  const li = newComment(commentString)
-  const {ul} = queryCard()
+  
 
   const requestBody = {"image_id": imageId,
                         "content": commentString }
   postImage(commentsURL,requestBody,(resp)=>console.log(resp))
 
-  ul.appendChild(li)
+  newComment(commentString)
   event.target.reset()
 }
 
