@@ -100,10 +100,10 @@ function handleDeleteComment(event) {
 }
 
 function handleLike(event) {
-
   let {likes} = queryCard()
   likes.innerHTML++
-
+  //Dont mess this up, cause it seems 
+  //there is no way to delete likes
   requestBody = {"image_id": imageId}
   postImage(likeURL,requestBody,(resp)=>console.log("success"))
 }
