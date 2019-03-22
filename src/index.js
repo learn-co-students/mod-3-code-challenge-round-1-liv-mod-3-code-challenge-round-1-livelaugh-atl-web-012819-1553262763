@@ -1,4 +1,5 @@
 
+//GLOBAL CONSTANTS
 const imageId = 2249 //Enter the id from the fetched image here
 
 const imageURL = `https://randopic.herokuapp.com/images/${imageId}`
@@ -7,6 +8,7 @@ const likeURL = `https://randopic.herokuapp.com/likes`
 
 const commentsURL = `https://randopic.herokuapp.com/comments/`
 
+//PAGE LOAD KICKS OFF RENDERING
 document.addEventListener('DOMContentLoaded', () => {
   console.log('%c DOM Content Loaded and Parsed!', 'color: magenta')
 
@@ -16,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   card.form.addEventListener("submit", handleComment)
 })
 
-
+//FETCH HELPERS
 function getImage(url,callback) {
   fetch(url)
   .then((resp)=>{
@@ -44,6 +46,7 @@ function deleteReq(url,callback){
   }).then(resp => callback(resp))
 }
 
+//DOM RENDERING
 function renderImage(imageData) {
   card = queryCard()
   card.image.src = imageData.url
@@ -57,6 +60,20 @@ function renderImage(imageData) {
   })
 }
 
+function newComment(commentString){
+  const li = document.createElement("li")
+  const deleteBtn = document.createElement("button")
+
+  deleteBtn.addEventListener("click",handleDeleteComment)
+  deleteBtn.innerText = "Delete"
+
+  li.innerHTML = commentString
+  li.appendChild(deleteBtn)
+
+  return li
+}
+
+//EVENT HANLDERS
 function handleComment(event) {
   event.preventDefault()
   
@@ -82,19 +99,6 @@ function handleDeleteComment(event) {
   })
 }
 
-function newComment(commentString){
-  const li = document.createElement("li")
-  const deleteBtn = document.createElement("button")
-
-  deleteBtn.addEventListener("click",handleDeleteComment)
-  deleteBtn.innerText = "Delete"
-
-  li.innerHTML = commentString
-  li.appendChild(deleteBtn)
-
-  return li
-}
-
 function handleLike(event) {
 
   let {likes} = queryCard()
@@ -104,6 +108,7 @@ function handleLike(event) {
   postImage(likeURL,requestBody,(resp)=>console.log("success"))
 }
 
+//DOM HELPER
 function queryCard() {
   return {
     card : document.getElementById("image_card"),
