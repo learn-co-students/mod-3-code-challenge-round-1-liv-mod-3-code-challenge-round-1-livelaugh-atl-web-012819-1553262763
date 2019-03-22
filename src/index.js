@@ -37,7 +37,7 @@ function renderImageData(data) {
 
 function renderComment(commentContent, commentId) {
   const li = document.createElement('li')
-  li.textContent = commentContent
+  li.textContent = commentContent + ' '
 
   const del = document.createElement('button')
   del.textContent = 'Delete Comment'
