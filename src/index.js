@@ -1,4 +1,3 @@
-let comments = []
 
 const imageId = 2249 //Enter the id from the fetched image here
 
@@ -7,6 +6,7 @@ const imageURL = `https://randopic.herokuapp.com/images/${imageId}`
 const likeURL = `https://randopic.herokuapp.com/likes`
 
 const commentsURL = `https://randopic.herokuapp.com/comments/`
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log('%c DOM Content Loaded and Parsed!', 'color: magenta')
 
@@ -36,16 +36,27 @@ function postImage(url,body,callback) {
   }).then((resp)=>callback(resp))
 }
 
+function deleteReq(url,callback){
+  fetch(url,{
+    method: "DELETE",
+    headers: {"Content-Type": "application/json",
+              "Accept": "application/json"},
+  }).then(resp => callback(resp))
+}
+
 function renderImage(imageData) {
   card = queryCard()
   card.image.src = imageData.url
   card.h4.innerHTML = imageData.name
   card.likes.innerHTML = imageData.like_count
+
   imageData.comments.forEach(comment=>{
     li = newComment(comment.content)
+    li.dataset.id = comment.id
     card.ul.appendChild(li)
   })
 }
+
 function handleComment(event) {
   event.preventDefault()
   
@@ -60,16 +71,31 @@ function handleComment(event) {
   ul.appendChild(li)
   event.target.reset()
 }
+
+function handleDeleteComment(event) {
+  const commentLI = event.target.parentNode
+  const commentID = commentLI.dataset.id
+
+  deleteReq(`${commentsURL}${commentID}`,(resp)=>{
+    commentLI.remove()
+    console.log("Bye bye comment...")
+  })
+}
+
 function newComment(commentString){
   const li = document.createElement("li")
+  const deleteBtn = document.createElement("button")
+
+  deleteBtn.addEventListener("click",handleDeleteComment)
+  deleteBtn.innerText = "Delete"
+
   li.innerHTML = commentString
-  li.dataset.index = comments.length
-  comments.push(commentString)
+  li.appendChild(deleteBtn)
+
   return li
 }
 
 function handleLike(event) {
-  console.log("You really like me")
 
   let {likes} = queryCard()
   likes.innerHTML++
@@ -77,6 +103,7 @@ function handleLike(event) {
   requestBody = {"image_id": imageId}
   postImage(likeURL,requestBody,(resp)=>console.log("success"))
 }
+
 function queryCard() {
   return {
     card : document.getElementById("image_card"),
